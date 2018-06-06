@@ -6,13 +6,13 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
-import lab4.model.Declaration;
+import lab4.model.Length;
 
-public class DeclarationDAO implements DAOInterface<Declaration, String> {
+public class LengthDAO implements DAOInterface<Length, Integer> {
     private Session currentSession;
     private Transaction currentTransaction;
 
-    public DeclarationDAO() {
+    public LengthDAO() {
 
     }
 
@@ -60,30 +60,30 @@ public class DeclarationDAO implements DAOInterface<Declaration, String> {
         this.currentTransaction = currentTransaction;
     }
 
-    public void persist(Declaration entity) {
+    public void persist(Length entity) {
         getCurrentSession().save(entity);
     }
 
-    public void update(Declaration entity) {
+    public void update(Length entity) {
         getCurrentSession().update(entity);
     }
 
-    public Declaration findById(String id) {
-        return (Declaration) getCurrentSession().get(Declaration.class, id);
+    public Length findById(Integer id) {
+        return (Length) getCurrentSession().get(Length.class, id);
     }
 
-    public void delete(Declaration entity) {
+    public void delete(Length entity) {
         getCurrentSession().delete(entity);
     }
 
     @SuppressWarnings("unchecked")
-    public List<Declaration> findAll() {
-        return (List<Declaration>) getCurrentSession().createQuery("from Declaration").list();
+    public List<Length> findAll() {
+        return (List<Length>) getCurrentSession().createQuery("from Length").list();
     }
 
     public void deleteAll() {
-        List<Declaration> entityList = findAll();
-        for (Declaration entity : entityList) {
+        List<Length> entityList = findAll();
+        for (Length entity : entityList) {
             delete(entity);
         }
     }

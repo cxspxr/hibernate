@@ -1,133 +1,194 @@
 package lab4;
 
-import java.sql.Date;
-import java.util.List;
-
-import lab4.model.Girl;
-import lab4.service.GirlService;
+import lab4.model.Length;
+import lab4.service.LengthService;
 import org.hibernate.cfg.Configuration;
+
+import java.util.List;
+import java.util.Scanner;
+import java.util.Date;
 
 
 public class App {
+    private static LengthService lengthService = new LengthService();
+    private static Scanner in = new Scanner(System.in);
+    private static String user;
+
+    private static void menu() {
+        System.out.println("1. Calculate (Create+Store)");
+        System.out.println("2. Update stored length");
+        System.out.println("3. Delete all lengths");
+        System.out.println("4. Delete length by id");
+        System.out.println("5. Show all stored lengths");
+        System.out.println("6. Show an existing length");
+        System.out.println("0. Exit");
+    }
+
+    private static Integer getId() {
+        System.out.println("Enter the ID:");
+
+        return in.nextInt();
+    }
+
+    private static Double getOriginalValue() {
+        System.out.println("Enter an original value:");
+
+        return in.nextDouble();
+    }
+
+    private static String getOriginalType() {
+        System.out.println("Enter an original type: \"cm\" / \"mm\" / \"m\":");
+
+        return in.next();
+    }
+
+    private static String getConvertedType() {
+        System.out.println("Enter a type to convert to: \"cm\" / \"mm\" / \"m\":");
+
+        return in.next();
+    }
+
+    private static String getUsername() {
+        System.out.println("Enter your username:");
+
+        return in.next();
+    }
+
+    private static Double evaluate(Double value, String originalType, String typeToConvertTo) {
+        Double convertedValue = 0.0;
+
+        if (originalType.equals("cm")) {
+            if (typeToConvertTo.equals("mm")) {
+                convertedValue = value * 10;
+            } else if (typeToConvertTo.equals("cm")) {
+                convertedValue = value;
+            } else if (typeToConvertTo.equals("m")) {
+                convertedValue = value / 100;
+            }
+        } else if (originalType.equals("mm")) {
+            if (typeToConvertTo == "mm") {
+                convertedValue = value;
+            } else if (typeToConvertTo.equals("cm")) {
+                convertedValue = value / 10;
+            } else if (typeToConvertTo.equals("m")) {
+                convertedValue = value / 1000;
+            }
+        } else if (originalType.equals("m")) {
+            if (typeToConvertTo.equals("mm")) {
+                convertedValue = value * 1000;
+            } else if (typeToConvertTo.equals("cm")) {
+                convertedValue = value * 100;
+            } else if (typeToConvertTo.equals("m")) {
+                convertedValue = value;
+            }
+        }
+
+        return convertedValue;
+    }
+
+    private static void calculate() {
+        double value = 0.0,  convertedValue = 0.0;
+        String originalType = "", typeToConvertTo = "";
+
+        value = getOriginalValue();
+        originalType = getOriginalType();
+        typeToConvertTo = getConvertedType();
+
+        convertedValue = evaluate(value, originalType, typeToConvertTo);
+
+        System.out.println(value + originalType + " equals to " + convertedValue + typeToConvertTo + "\n");
+
+        Integer id = getId();
+
+        Length length = new Length(id, value, convertedValue, originalType, typeToConvertTo, user, new Date());
+
+        lengthService.persist(length);
+
+        System.out.println("Length stored is " + length.toString());
+    }
+
+    private static void update() {
+        System.out.println("Enter an existing ID");
+        Integer id = in.nextInt();
+        Double originalValue, convertedValue;
+        String originalType, convertedType, user;
+
+        Length length = lengthService.findById(id);
+
+        originalValue = getOriginalValue();
+        convertedType = getConvertedType();
+        originalType = getOriginalType();
+        user = getUsername();
+
+        convertedValue = evaluate(originalValue, originalType, convertedType);
+
+        length.setOriginal(originalValue);
+        length.setUser(user);
+        length.setOriginal_type(originalType);
+        length.setConverted_type(convertedType);
+        length.setConverted(convertedValue);
+
+        lengthService.update(length);
+        System.out.println("Length updated is =>" + lengthService.findById(length.getId()).toString());
+    }
+
+    private static void deleteAll() {
+        lengthService.deleteAll();
+
+        System.out.println("All lengths have been deleted");
+    }
+
+    private static void deleteById() {
+        Integer id = getId();
+
+        lengthService.delete(id);
+
+        System.out.println("A record with id " + id + " has been deleted successfully");
+    }
+
+    private static void listAll() {
+        List<Length> lengths = lengthService.findAll();
+        System.out.println("Lengths found are :");
+        for (Length b : lengths) {
+            System.out.println("-" + b.toString());
+        }
+    }
+
+    private static void listById() {
+        Integer id = getId();
+        Length length = lengthService.findById(id);
+        System.out.println("Length found with id " + id + " is =>" + length.toString());
+    }
+
     public static void main(String[] args) {
-//        Configuration configuration = new Configuration();
-//        configuration.addClass(lab4.model..class)
-//        DeclarationService declarationService = new DeclarationService();
-//        Declaration declaration1 = new Declaration("1", new Date(1234567), "Ukraine",
-//                "Great Britain", "1000", "UAH", "luggage is huge",
-//                "Yaroslav", "Leonidovich", "Casper", "MT", "324724",
-//                "Ukraine");
-//        Declaration declaration2 = new Declaration("2", new Date(150000), "Ukraine",
-//                "USA", "500", "USD", "luggage is small",
-//                "Kateryna", "Alexandrovna", "Girl", "MT", "300000",
-//                "Canada");
-//        Declaration declaration3 = new Declaration("3", new Date(150000), "Ukraine",
-//                "Brazil", "1500", "CAD", "luggage is medium",
-//                "Whatever", "Whateverovych", "What", "MT", "400000",
-//                "Georgia");
-//        System.out.println("*** Persist - start ***");
-//        declarationService.persist(declaration1);
-//        declarationService.persist(declaration2);
-//        declarationService.persist(declaration3);
-//        List<Declaration> declarations1 = declarationService.findAll();
-//        System.out.println("declarations Persisted are :");
-//        for (Declaration b : declarations1) {
-//            System.out.println("-" + b.toString());
-//        }
-//        System.out.println("*** Persist - end ***");
-//        System.out.println("*** Update - start ***");
-//        declaration1.setName("Yarik");
-//        declarationService.update(declaration1);
-//        System.out.println("declaration Updated is =>"
-//                +declarationService.findById(declaration1.getId()).toString());
-//        System.out.println("*** Update - end ***");
-//        System.out.println("*** Find - start ***");
-//        String id2 = declaration2.getId();
-//        Declaration another = declarationService.findById(id2);
-//        System.out.println("declaration found with id " + id2 + " is =>" +
-//                another.toString());
-//
-//        System.out.println("*** Find - end ***");
-//        System.out.println("*** Delete - start ***");
-//        String id3 = declaration3.getId();
-//        declarationService.delete(id3);
-//        System.out.println("Deleted declaration with id " + id3 + ".");
-//        System.out.println("Now all declarations are " + declarationService.findAll().size()
-//
-//                + ".");
-//
-//        System.out.println("*** Delete - end ***");
-//        System.out.println("*** FindAll - start ***");
-//        List<Declaration> declarations2 = declarationService.findAll();
-//        System.out.println("declarations found are :");
-//        for (Declaration b : declarations2) {
-//            System.out.println("-" + b.toString());
-//        }
-//        System.out.println("*** FindAll - end ***");
-//        System.out.println("*** DeleteAll - start ***");
-//        declarationService.deleteAll();
-//        System.out.println("declarations found are now " +
-//
-//                declarationService.findAll().size());
-//
-//        System.out.println("*** DeleteAll - end ***");
-//        System.exit(0);
+        String choice;
 
-        GirlService girlService = new GirlService();
-        Girl girl1 = new Girl(1,40, "Jessica");
-        Girl girl2 = new Girl(2, 20, "Marina");
-        Girl girl3 = new Girl(3, 13, "Alice");
+        System.out.println("----WELCOME TO LENGTH CONVERTATOR----\n");
+
+        System.out.println("Enter your username:");
+        user = in.next();
+
+        do {
+            menu();
+            choice = in.next().trim();
+
+            if (choice.equals("1")) {
+                calculate();
+            } else if (choice.equals("2")) {
+                update();
+            } else if (choice.equals("3")) {
+                deleteAll();
+            } else if (choice.equals("4")) {
+                deleteById();
+            } else if (choice.equals("5")) {
+                listAll();
+            } else if (choice.equals("6")) {
+                listById();
+            }
 
 
-        System.out.println("*** Persist - start ***");
-        girlService.persist(girl1);
-        girlService.persist(girl2);
-        girlService.persist(girl3);
+        } while (!choice.equals("0"));
 
-        List<Girl> girls1 = girlService.findAll();
-        System.out.println("girls Persisted are :");
-        for (Girl b : girls1) {
-            System.out.println("-" + b.toString());
-        }
 
-        System.out.println("*** Persist - end ***");
-        System.out.println("*** Update - start ***");
-
-        girl1.setName("Marusya");
-        girlService.update(girl1);
-        System.out.println("girl Updated is =>"
-                +girlService.findById( girl1.getId() ));
-        System.out.println("*** Update - end ***");
-        System.out.println("*** Find - start ***");
-        Integer id2 = girl2.getId();
-        Girl another = girlService.findById(id2);
-        System.out.println("girl found with id " + id2 + " is =>" +
-                another.toString());
-
-        System.out.println("*** Find - end ***");
-        System.out.println("*** Delete - start ***");
-        Integer id3 = girl3.getId();
-        girlService.delete(id3);
-        System.out.println("Deleted girl with id " + id3 + ".");
-        System.out.println("Now all girls are " + girlService.findAll().size()
-
-                + ".");
-
-        System.out.println("*** Delete - end ***");
-        System.out.println("*** FindAll - start ***");
-        List<Girl> declarations2 = girlService.findAll();
-        System.out.println("girls found are :");
-        for (Girl b : declarations2) {
-            System.out.println("-" + b.toString());
-        }
-        System.out.println("*** FindAll - end ***");
-        System.out.println("*** DeleteAll - start ***");
-        girlService.deleteAll();
-        System.out.println("girls found are now " +
-
-                girlService.findAll().size());
-
-        System.out.println("*** DeleteAll - end ***");
-        System.exit(0);
     }
 }
